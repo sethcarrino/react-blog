@@ -1,85 +1,41 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+
+import {NavLink} from 'react-router-dom';
 
 class PostList extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      author: '',
-      title: '',
-      entry: ''
+      posts: []
     }
-
-    this.handleAuthor = this.handleAuthor.bind(this);
-    this.handleTitle = this.handleTitle.bind(this);
-    this.handleEntry = this.handleEntry.bind(this);
   }
-
-  handleAuthor(e) {
-    this.setState({author: e.target.value});
-  }
-
-  handleTitle(e) {
-    this.setState({title: e.target.value});
-  }
-
-  handleEntry(e) {
-    this.setState({entry: e.target.value});
-  }
-
-  // creating a function to call that will add to the list of posts
-  addToList = (e) => {
-      e.preventDefault();
-      this.setState({author: e.target.value, title: e.target.value, entry: e.target.value});
-      let listItem = JSON.stringify(this.state);
-
-      fetch("https://tiny-lasagna-server.herokuapp.com/collections/blogger/", {
-        method: "POST",
-        body: listItem,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-      }
-    }
-    ).then(response => {
-      console.log(response, "yay");
-
-    }).catch(err => {
-      console.log(err, "boo!");
-    });
-    this.setState({author: '', title: '', entry: ''});
-  }
-
-
 
   componentDidMount() {
-    fetch('https://tiny-lasagna-server.herokuapp.com/collections/blogger/')
-      .then(results => {
-        return results.json();
-      })
-      .then(data => {
-        this.setState({ posts: data });
-        console.log(data);
-      });
+    fetch('https://tiny-lasagna-server.herokuapp.com/collections/blogger/').then(results => {
+      return results.json();
+    }).then(data => {
+      console.log(data);
+      this.setState({posts: data});
+    });
   }
 
   render() {
-    const { id } = this.props.match.params;
-    const URL = `https://tiny-lasagna-server.herokuapp.com/collections/blogger/${id}`;
-    let blogs = this.props.posts.map( post => {
+
+    let blogs = this.state.posts.map((post) => {
       return (
-          <ul className="card" key={post._id}>
-            <li>
-              {post.title}
-            </li>
-          </ul>
-        );
-      });
-      return (
-        <div className="cards">
+        
+        <NavLink to={`/show/${post._id}`} key={post._id}>{post.title}</NavLink>
+      )
+    });
+
+    return (
+      <div className="container-fluid blog-list">
+        <section className="list-group">
           {blogs}
-        </div>
-      );
+        </section>
+      </div>
+    );
   }
 }
 
